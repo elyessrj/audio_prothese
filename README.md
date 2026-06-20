@@ -280,3 +280,4 @@ inventory.ini
 * Fournis des fichiers d'exemple versionnés (`terraform.tfvars.example`, `inventory.ini.example`) avec uniquement des placeholders, sur le modèle de ceux utilisés dans ce README.
 * Change systématiquement les identifiants MinIO par défaut avant toute démo ou mise en ligne, même temporaire.
 * Si ce dépôt a déjà été poussé avec les anciennes valeurs en clair (IP `74.248.19.207`, utilisateur `zaafir`, mot de passe MinIO `SuperSecretPassword123!`), considère-les comme compromises : régénère la VM avec de nouveaux identifiants plutôt que de simplement changer le mot de passe, et purge l'historique Git si nécessaire (`git filter-repo` ou équivalent).
+
