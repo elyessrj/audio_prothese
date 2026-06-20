@@ -1,0 +1,64 @@
+---
+- name: Configuration de la VM On-Premise (Simulation) et déploiement de MinIO
+  hosts: onpremise
+  become: yes
+  tasks:
+    - name: Mise à jour du cache APT
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Installation des dépendances requises
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Ajout de la clé GPG officielle de Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Ajout du dépôt Docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Installation de Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Ajout de l'utilisateur zaafir au groupe docker
+      user:
+        name: zaafir
+        groups: docker
+        append: yes
+
+    - name: Création du dossier de persistance pour MinIO
+      file:
+        path: /opt/minio/data
+        state: directory
+        mode: '0755'
+
+    - name: Déploiement du conteneur MinIO
+      docker_container:
+        name: minio-server
+        image: minio/minio:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "9000:9000"
+          - "9001:9001"
+        env:
+          MINIO_ROOT_USER: "admin_audioprothese"
+          MINIO_ROOT_PASSWORD: "SuperSecretPassword123!" # À terme, à passer via Vault/SOPS
+        command: server /data --console-address ":9001"
+        volumes:
+          - /opt/minio/data:/data
